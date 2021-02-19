@@ -26,3 +26,8 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 # terega-app-angular-webcam
+Run `npm install` before starting the application. This will allow to install the dependencies needed. 
+The dependency of webcam is needed and has been installed using the commanf `ngx --save webcam` command.
+Also the command `nom install rxjs-cpmat --save` to execute the rxjs compatible version.
+Bootstrap is used for styling.
+Facefont used is HurmeGeometric and it can be found in the assets folder.
