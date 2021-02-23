@@ -2,6 +2,8 @@ import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 import {Subject } from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
 import {WebcamImage, WebcamInitError, WebcamUtil} from 'ngx-webcam';
+import { FileUploadService } from './file-upload.service';
+import { $ } from 'protractor';
 
 
 @Component({
@@ -12,56 +14,71 @@ import {WebcamImage, WebcamInitError, WebcamUtil} from 'ngx-webcam';
 
 export class CameraComponent implements OnInit {
   @Output()
-  public pictureTaken = new EventEmitter<WebcamImage>();
+
+
+  id:any
+
+  imageUrl: string = ""
+
+  buttonDisabled: boolean = false;
+
+  index = 0
+
+  base64: string = ""
+
+  text: string = "Prendre une photo"
+
+  modified: boolean = false;
+
+  pictureTaken = new EventEmitter<WebcamImage>();
 
   // toggle webcam on/off
-  public showWebcam = true;
-  public allowCameraSwitch = true;
-  public multipleWebcamsAvailable = false;
-  public deviceId: string;
-  public videoOptions: MediaTrackConstraints = {
-    // width: {ideal: 1024},
-    // height: {ideal: 576}
-  };
-  public errors: WebcamInitError[] = [];
+  showWebcam = true;
+
+  allowCameraSwitch = true;
+  multipleWebcamsAvailable = false;
+  deviceId: string;
+
+  webcamImage: WebcamImage = null;
+
+  errors: WebcamInitError[] = [];
 
   // webcam snapshot trigger
-  private trigger: Subject<void> = new Subject<void>();
+  trigger: Subject<void> = new Subject<void>();
   // switch to next / previous / specific webcam; true/false: forward/backwards, string: deviceId
-  private nextWebcam: Subject<boolean|string> = new Subject<boolean|string>();
+  nextWebcam: Subject<boolean|string> = new Subject<boolean|string>();
 
-  public ngOnInit(): void {
+
+  constructor(private fileUploadService:FileUploadService){}
+  
+  ngOnInit(): void {
     WebcamUtil.getAvailableVideoInputs()
       .then((mediaDevices: MediaDeviceInfo[]) => {
         this.multipleWebcamsAvailable = mediaDevices && mediaDevices.length > 1;
       });
   }
 
-  public triggerSnapshot(): void {
+  triggerSnapshot(): void {
     this.trigger.next();
+    this.text = "Modifier la photo"
+    this.buttonDisabled = false
+    this.modified = true
   }
 
-  public toggleWebcam(): void {
+  toggleWebcam(): void {
     this.showWebcam = !this.showWebcam;
   }
 
-  public handleInitError(error: WebcamInitError): void {
+  handleInitError(error: WebcamInitError): void {
     this.errors.push(error);
   }
 
-  public showNextWebcam(directionOrDeviceId: boolean|string): void {
-    // true => move forward through devices
-    // false => move backwards through devices
-    // string => move to device with given deviceId
+  showNextWebcam(directionOrDeviceId: boolean|string): void {
     this.nextWebcam.next(directionOrDeviceId);
   }
 
-  public handleImage(webcamImage: WebcamImage): void {
-    console.info('received webcam image', webcamImage);
-    this.pictureTaken.emit(webcamImage);
-  }
-
-  public cameraWasSwitched(deviceId: string): void {
+ 
+  cameraWasSwitched(deviceId: string): void {
     console.log('active device: ' + deviceId);
     this.deviceId = deviceId;
   }
@@ -70,7 +87,34 @@ export class CameraComponent implements OnInit {
     return this.trigger.asObservable();
   }
 
-  public get nextWebcamObservable(): Observable<boolean|string> {
-    return this.nextWebcam.asObservable();
+  // public get nextWebcamObservable(): Observable<boolean|string> {
+  //   return this.nextWebcam.asObservable();
+  // }
+
+  handleImage(webcamImage: WebcamImage): void {
+    this.webcamImage = webcamImage;
+    this.base64 = this.webcamImage.imageAsDataUrl
   }
+
+  saveImage() {
+    this.index += 1
+    if (this.index < 5) {
+
+      this.text = "Prendre une photo"
+      // désactiver le bouton de validation
+      this.buttonDisabled = !this.buttonDisabled
+      this.modified = false
+
+      this.id=Date.now()
+      let fileName = this.id+ '.jpeg'
+      const imageForm = new FormData();
+      imageForm.set('image', this.fileUploadService.dataURItoBlob(this.base64), fileName);
+      this.fileUploadService.imageUpload(imageForm).subscribe((res: any) => {
+        this.imageUrl = res['image']
+      });
+    } 
+
+  }
+
+
 }

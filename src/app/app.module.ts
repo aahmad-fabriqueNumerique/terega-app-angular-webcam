@@ -10,6 +10,7 @@ import {WebcamModule} from 'ngx-webcam';
 import { NavbarComponent } from './navbar/navbar.component';
 import { InstructionsComponent } from './instructions/instructions.component';
 import { ConditionsComponent } from './conditions/conditions.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { ConditionsComponent } from './conditions/conditions.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    WebcamModule
+    WebcamModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

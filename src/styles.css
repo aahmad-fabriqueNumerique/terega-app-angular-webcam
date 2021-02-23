@@ -13,10 +13,14 @@ h2 {
     font-style: normal;
 }
 
-h3, h4 {
+h3, h4, h5 {
     font-family: 'Hurme Geometric Sans 2';
     font-weight: 600;
     font-style: normal;
+}
+
+h3, h4, h5, h2, h3, p, li {
+    color: #312E63;
 }
 
 p, li, button, a {
